@@ -26,11 +26,11 @@ d_mean = np.array([np.mean(d) for d in nn_d])
 
 idx_dmean = sorted([[ii,d_mean[i]] for i,ii in enumerate(idx)],key=take_second)
 
-top500 = idx_dmean[-500:]
+top500 = idx_dmean[:]
 
 
 meta = get_meta()
-#pp = PdfPages('plots/qso0_99.pdf')
+pp = PdfPages('plots/qso0_99.pdf')
 for i,qso in enumerate(top500):
     qidx = int(qso[0])
     qdmean = qso[1]
@@ -57,8 +57,8 @@ for i,qso in enumerate(top500):
     ax.text(0.75, 0.975, info, transform=ax.transAxes, fontsize=12,
         verticalalignment='top', bbox=props)
 
-    plt.show()
-    quit()
+    #plt.show()
+    #quit()
     pp.savefig(fig)
 
     if (i+1) % 100 == 0:
