@@ -16,3 +16,5 @@ qso_plot.py - plots spectrum for given index
 
 
 funcs.py - useful functions 
+
+notebook.ipynb - testing code, minor plots
