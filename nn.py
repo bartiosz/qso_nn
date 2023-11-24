@@ -38,6 +38,10 @@ for i,s in enumerate(slist):
     wave_rest_array = fqso[:,0]
     fit = fqso[:,1]    
     
+    #nqso = np.loadtxt(npath + nfile)
+    #wave_rest = nqso[:,0]
+    #flux_norm = nqso[:,1]
+    #sigma_norm = nqso[:,2] 
 
     Fits.append(fit)
     Wave.append(wave_rest_array)
@@ -62,7 +66,8 @@ nbrs = NearestNeighbors(n_neighbors=6, algorithm='ball_tree', metric='euclidean'
 
 qso_list = slist
 
-
+#NN_meta_idx = []
+#NN_d = []
 result=[]
 for i,qso in enumerate(qso_list):
 
@@ -74,6 +79,14 @@ for i,qso in enumerate(qso_list):
     chosen_idx = Idxs.index(chosen)
     chosen_fit = Fits[chosen_idx]
     chosen_wave = Wave[chosen_idx]
+
+    #sfile_name = Path(slist[chosen_idx]).stem                
+
+    #nfile = sfile_name + '_' + ntype + '.txt'
+    #chosen_qso = np.loadtxt(npath + nfile)
+    #wave_rest = chosen_qso[:,0]
+    #flux_norm = chosen_qso[:,1]
+    #sigma_norm = chosen_qso[:,2] 
 
 
     #set wavelength interval for nearest neighbor search
@@ -87,11 +100,21 @@ for i,qso in enumerate(qso_list):
 
     result.append([Idxs[i],*meta_idx,*nbrs_d])
 
+    #NN_meta_idx.append(meta_idx)
+    #NN_d.append(nbrs_d)
+
     print(i)
 
 
 
-with open(dpath + 'nearest_neighbors.txt','w') as nnsave:
+with open(dpath + 'nearest_neighbors_nonBALs_2.txt','w') as nnsave:
     for x in result:
         nnsave.write('{} \t \t {} \t{} \t{} \t{} \t{} \t{} \t\t {} \t{} \t{} \t{} \t{} \t{} \n'.format(*x))
 nnsave.close()
+
+
+
+
+
+
+

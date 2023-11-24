@@ -15,7 +15,7 @@ def take_second(elem):
 
 dpath= '/media/bartosz/Volume/BOSS_DR14/data/'
 
-nn = np.loadtxt(dpath + 'nearest_neighbors.txt')
+nn = np.loadtxt(dpath + 'nearest_neighbors_nonBALs_2.txt')
 
 idx = nn[:,0]
 
@@ -26,20 +26,27 @@ d_mean = np.array([np.mean(d) for d in nn_d])
 
 idx_dmean = sorted([[ii,d_mean[i]] for i,ii in enumerate(idx)],key=take_second)
 
-top500 = idx_dmean[:]
+
+top500 = idx_dmean[-100:]
+#top500 = [idx_dmean[-28],idx_dmean[-13]]
 
 
 meta = get_meta()
-pp = PdfPages('plots/qso0_99.pdf')
+pp = PdfPages('plots/qso0_99_v2.pdf')
+#pp = PdfPages('plots/qso73-88.pdf')
 for i,qso in enumerate(top500):
     qidx = int(qso[0])
     qdmean = qso[1]
     z, BI = get_z(meta,qidx), get_BI(meta,qidx)
 
-    fig, ax = plot_fit(qidx)
+    fig = plt.figure(figsize=(20,7))
+    ax = fig.add_subplot(1,1,1)
+    plot_fit(qidx,fig,ax,'red',1)
     ax.set_xlabel('$\lambda_{rest} (\AA)$')
     ax.set_ylabel('flux')
     ax.legend()
+
+    #ax.set_ylim(-0.2,2.2)
 
     info = '\n'.join((
         r'id = {}'.format(qidx),
@@ -57,13 +64,11 @@ for i,qso in enumerate(top500):
     ax.text(0.75, 0.975, info, transform=ax.transAxes, fontsize=12,
         verticalalignment='top', bbox=props)
 
-    #plt.show()
-    #quit()
     pp.savefig(fig)
 
-    if (i+1) % 100 == 0:
-        pp.close()
-        pp = PdfPages('plots/qso{}_{}.pdf'.format(i+1,i+100))
+    #if (i+1) % 100 == 0:
+    #    pp.close()
+    #    pp = PdfPages('plots/qso{}_{}.pdf'.format(i+1,i+100))
     
     print(i)
 

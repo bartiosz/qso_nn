@@ -47,9 +47,9 @@ db_file = '/media/bartosz/Volume/igmspec_data/DB/IGMspec_DB_v03.1.hdf5'
 rpath = '/media/bartosz/Volume/BOSS_DR14/data/fits/'
 npath = '/media/bartosz/Volume/BOSS_DR14/data/normed/'
 
+#load meta data for redshift
 importlib.reload(sdbsdb)
 sdb = sdbsdb.SpecDB(db_file=db_file)
-
 all_meta = sdb['BOSS_DR14'].meta
 
 
@@ -82,8 +82,10 @@ b_wl = wave_rest_array[b_int]
 for i,f in enumerate(mylist):
     #if i==100: break;
     
-    file_name = Path(f).stem                #os.path.basename(f)
+    file_name = Path(f).stem
     file_info = file_name.split('_')
+    
+    #load redshift
     qso_idx = int(file_info[0])
     qso_meta = all_meta[qso_idx]
     z_in = qso_meta[6]
@@ -130,7 +132,6 @@ for i,f in enumerate(mylist):
     fit_sdss_cont(wave, flux, sigma, nfit, z_in, deltapix1, deltapix2, minpix, slopethresh, fluxthresh, C, Fscale) # The fit
     
 
-    #wave_rest_array = np.arange(1000,3000,0.5)
     wave_array = wave_rest_array*(1+z_in)
     contt = get_cont(C,wave_array) ## This is how the resulting fit is extracted - C holds the cubic parameters resulting 
                              ## from the fitting, and get_cont interpolates that cubic onto any wavelength array passed as an input.
@@ -154,8 +155,6 @@ for i,f in enumerate(mylist):
         print(file_name, 'nan in fit, fit replaced with zeros')
         contblue = np.zeros(len(wave_array))
 
-    print(i)
-    continue
 
     norm_save='{}_norm'.format(file_name)
     with open(npath + norm_save + '.txt','w') as nsave:
