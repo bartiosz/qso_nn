@@ -53,8 +53,9 @@ npath = dpath + 'normed/'
 
 #load meta for redshift
 meta = np.loadtxt(dpath + 'meta.txt',dtype='str')
-qnames = meta[:,0]
+xnames = meta[:,0]
 Z = meta[:,1]
+wl1r = [float(wl) for wl in meta[:,2]]      #short rest-frame wavelength of water aborption range
 
 # Automated continuum fitter parameters. Built-in params for steepness and overall flux adjustment.
 # Avoid changing these.
@@ -69,20 +70,17 @@ wave_norm = 1290.0
 #z = [2.865,2.656,2.254,2.555,2.988,2.324]
 fits=[]
 fvals=[]
-lst = [f for f in glob.glob(spath + '*.txt')]
+#lst = [f for f in glob.glob(spath + '*.txt')]
+xlist = [glob.glob(spath + '{}_*.txt'.format(name))[0] for name in xnames]
 
-
-wave_rest_array = np.arange(1000,3000,0.5)
-
-
-for i,f in enumerate(lst):
+for i,f in enumerate(xlist):
     #if i==100: break;
     
     file_name = Path(f).stem
     file_info = file_name.split('_')
     
     #load redshift
-    qso_idx = np.nonzero(qnames == file_info[0])[0][0]
+    qso_idx = np.nonzero(xnames == file_info[0])[0][0]
     z_in = float(Z[qso_idx])
 
     qso = np.loadtxt(f)
@@ -90,6 +88,21 @@ for i,f in enumerate(lst):
     flux = qso[:,1]
     sigma = qso[:,2]
     wave_rest = wave/(1+z_in)
+
+    #define fit range
+    wl1 = 1250
+    wl2 = wl1r[i]
+    wave_rest_array = np.arange(wl1,wl2,0.5)
+
+    #mask wavelength fit range
+    maskl = wave_rest > wl1
+    maskr = wave_rest < wl2
+    mask = np.logical_and(maskl,maskr)
+
+    wave=wave[mask]
+    flux=flux[mask]
+    sigma=sigma[mask]
+    wave_rest=wave_rest[mask]
 
     # Set up the arrays to hold the continuum
     cont =  np.zeros_like(flux)
@@ -150,14 +163,14 @@ for i,f in enumerate(lst):
         contblue = np.zeros(len(wave_array))
 
 
-    norm_save='{}_norm'.format(file_name)
+    norm_save='{}_trim_norm'.format(file_name)
     with open(npath + norm_save + '.txt','w') as nsave:
         for x in itertools.zip_longest(wave_rest,flux_norm,sigma_norm):
             nsave.write('{} \t {} \t {}\n'.format(*x))
     nsave.close()
 
 
-    fit_save='{}_dpx{}'.format(file_name,deltapix2)
+    fit_save='{}_trim_dpx{}'.format(file_name,deltapix2)
     with open(rpath + fit_save + '.txt','w') as fsave:
         for x in itertools.zip_longest(wave_rest_array,contblue):
             fsave.write('{} \t {}\n'.format(*x))
@@ -165,7 +178,7 @@ for i,f in enumerate(lst):
 
     print(file_name)
 
-fval_save = 'fvals.txt'
+fval_save = 'fvals_trim.txt'
 s = open(rpath + fval_save, 'w')
 s.write('{}'.format(fvals))
 s.close()
