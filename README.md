@@ -18,3 +18,5 @@ qso_plot.py - plots spectrum for given index
 funcs.py - useful functions 
 
 notebook.ipynb - testing code, minor plots
+
+mask_rebin.ipynb - maskinrg, rebinning, plotting of 2nd highz batch
