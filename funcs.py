@@ -33,24 +33,7 @@ def plot_fit(idx,fig,ax,c,lw):
     mask2 = fit_wl < 2250
     mask = np.logical_and(mask1,mask2)
 
-
-    #for filename in glob.glob(npath + '{}_*_0_norm.txt'.format(idx)):
-    #    normed = np.loadtxt(filename)
-
-    #norm_wl = normed[:,0]
-    #norm_flux = normed[:,1]
-    #norm_sig = normed[:,2]
-
-
-    #fig = plt.figure(figsize=(20,7))
-    #ax = fig.add_subplot(1,1,1)
-
-    #ax.plot(norm_wl,norm_sig,linewidth=0.8,drawstyle='steps-mid',color='grey',label='errors')
-    #ax.plot(norm_wl,norm_flux,linewidth=1, drawstyle='steps-mid', color='black',label='normed observation')
     ax.plot(fit_wl,fit_flux,linewidth=lw, drawstyle='steps-mid', color=c,label='spline fit')
-    #ax.axvspan(min(min(norm_wl),min(fit_wl)),1250,alpha=0.2,facecolor='grey')
-    #ax.axvspan(2250,max(max(norm_wl),max(fit_wl)),alpha=0.2,facecolor='grey')
-    #ax.set_xlim(left=min(min(norm_wl),min(fit_wl)),right=max(max(norm_wl),max(fit_wl)))
     return max(fit_flux[mask])
 
 

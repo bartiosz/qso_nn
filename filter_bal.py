@@ -1,7 +1,7 @@
 import numpy as np
 import importlib
 import glob
-from funcs import plot_fit, get_meta, get_z, get_BI
+from funcs import get_BI
 
 import shutil
 
@@ -10,17 +10,17 @@ from pathlib import Path
 
 from natsort import natsorted
 
-dpath= '/media/bartosz/Volume/BOSS_DR14/data/'
+dpath= '/media/bartosz/Volume/BOSS_DR14/'
 spath= dpath + 'spectra/'
-fpath= dpath + 'fits/dpx25/'
-npath= dpath + 'normed/dpx25/'
+#fpath= dpath + 'fits/dpx25/'
+#npath= dpath + 'normed/dpx25/'
 
 igmsp = SpecDB('/media/bartosz/Volume/igmspec_data/DB/IGMspec_DB_v03.1.hdf5')
 meta = igmsp['BOSS_DR14'].meta
 
 slist = natsorted([s for s in glob.glob(spath + '*_0.txt')])
-flist = natsorted([s for s in glob.glob(fpath + '*_0_dpx25.txt')])
-nlist = natsorted([s for s in glob.glob(npath + '*_0_norm.txt')])
+#flist = natsorted([s for s in glob.glob(fpath + '*_0_dpx25.txt')])
+#nlist = natsorted([s for s in glob.glob(npath + '*_0_norm.txt')])
 
 for i, s in enumerate(slist):
     sfile_name = Path(s).stem                
@@ -32,7 +32,7 @@ for i, s in enumerate(slist):
 
     if BI > 0:
         shutil.move(s, spath+'BALs/')
-        shutil.move(flist[i], fpath+'BALs/')
-        shutil.move(nlist[i], npath+'BALs/')
+        #shutil.move(flist[i], fpath+'BALs/')
+        #shutil.move(nlist[i], npath+'BALs/')
 
     print(i)
