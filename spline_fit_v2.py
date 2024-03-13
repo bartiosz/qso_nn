@@ -87,10 +87,13 @@ def spline_fit(wave,flux,sigma,z_in,dpx2):
     fval = np.interp(wave_norm,wave_rest_array,contt)  # Normalising output, required
 
     if fval==0:             # check for fval=0
-        print('interpolated value is 0; flux values and fit set to 0')
-        flux_norm = np.zeros(len(wave_rest))        
-        sigma_norm = np.zeros(len(wave_rest))       
-        contblue = np.zeros(len(wave_array))        
+        print('interpolated value is 0; flux values and fit are not normalised')
+        flux_norm = flux
+        sigma_norm = sigma
+        contblue = contt
+#        flux_norm = np.zeros(len(wave_rest))        
+#        sigma_norm = np.zeros(len(wave_rest))       
+#        contblue = np.zeros(len(wave_array))        
     else:
         flux_norm = flux/fval           # normalised flux
         sigma_norm = sigma/fval         # normalised errors
@@ -98,8 +101,10 @@ def spline_fit(wave,flux,sigma,z_in,dpx2):
 
 
     if np.isnan(contblue).any():        # Check for nans
-        print('nan in fit, fit replaced with zeros')
-        contblue = np.zeros(len(wave_array))
+        print('nan in fit, nans replaced with -1')
+        nan_mask = np.isnan(contblue)
+        contblue[nan_mask]=-1
+        #contblue = np.zeros(len(wave_array))
 
 
     spec_fit = [wave_rest_array,contblue]       # Spectrum fit in rest-frame
