@@ -11,7 +11,7 @@ from natsort import natsorted
 
 import itertools
 
-dpath= '/media/bartosz/Volume/BOSS_DR14/'
+dpath= '/media/bartosz/USB STICK/BOSS_DR14/'
 spath= dpath + 'spectra/'
 fpath= dpath + 'fits/'
 npath= dpath + 'normed/'
@@ -21,7 +21,7 @@ ftype= 'dpx{}'.format(dpix)
 ntype= 'norm'
 
 
-slist = natsorted([s for s in glob.glob(spath + '*_0.txt')])
+slist = natsorted([s for s in glob.glob(fpath + '*.txt')])
 
 
 # Load eBOSS fits and store them in array
@@ -31,7 +31,7 @@ for i,s in enumerate(slist):
     sfile_name = Path(s).stem                
     sfile_info = sfile_name.split('_')
     
-    ffile = sfile_name + '_' + ftype + '.txt'
+    ffile = sfile_name + '.txt'
     nfile = sfile_name + '_' + ntype + '.txt'
 
     
@@ -50,7 +50,7 @@ for i,s in enumerate(slist):
 
 
 # high-z data meta
-xpath = '/media/bartosz/Volume/highz_data/'
+xpath = '/media/bartosz/USB STICK/highz_data/'
 xmeta = np.loadtxt(xpath+'meta_data_v2.txt', dtype='str')
 xnames = xmeta[:,0]
 xZ = xmeta[:,1]
@@ -97,7 +97,7 @@ for i,f in enumerate(xlist):
     print(f)
 
 
-with open(xpath + 'highZ_NN_full.txt','w') as nnsave:
+with open(xpath + 'highZ_NN_full_sc.txt','w') as nnsave:
     for x in result:
-        nnsave.write('{} \t \t {} \t{} \t{} \t{} \t{} \t\t {} \t{} \t{} \t{} \t{} \n'.format(*x))
+        nnsave.write('{} \t {} \t{} \t{} \t{} \t{} \t {} \t{} \t{} \t{} \t{} \n'.format(*x))
 nnsave.close()
