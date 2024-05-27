@@ -20,3 +20,14 @@ funcs.py - useful functions
 notebook.ipynb - testing code, minor plots
 
 mask_rebin.ipynb - maskinrg, rebinning, plotting of 2nd highz batch
+
+
+funcs_query.py - functions to find object in DR16 catalog (Wu et al.)
+
+nn_properties.ipynb - looking up quasar properties of neighbors in DR16 catalog (Wu et al.)
+
+nn_statistics.ipynb - statisitcs of neighbors (distribution, KDE, ...)
+
+nn_radioloud.py - finding neighbors of radio-loud sample (reg. Zhang Liang)
+
+radio_loud.ipynb - data cleaning and neighbor plots of radio-loud sample
