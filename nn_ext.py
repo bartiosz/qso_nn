@@ -9,6 +9,9 @@ from natsort import natsorted
 
 import itertools
 
+def power_law(x,alpha,beta):
+    return alpha*x**beta
+
 dpath= '/media/bartosz/USB STICK/BOSS_DR14_ext/'      # path to data
 spec_folder = ['spectra_07_2', 'spectra_2_3', 'spectra_3_4']
 
@@ -48,9 +51,6 @@ for sf in spec_folder:
         ffile = sfile_name + '.txt'
         nfile = sfile_name + '_' + ntype + '.txt'
 
-        idx = sfile_info[0]
-        Idxs.append(idx)
-
         fqso = np.loadtxt(fpath + ffile)
         fit = fqso[:,1]    
 
@@ -69,58 +69,79 @@ for sf in spec_folder:
         # prepare fits in array for NN search
         Fits.append(fit)
 
+        idx = sfile_info[0]
+        Idxs.append(idx)
+
         print(i)
 
+# high-z data meta
+xpath = '/media/bartosz/USB STICK/highz_data/'
+xmeta = np.loadtxt(xpath+'meta_data_v2.txt', dtype='str')
+xnames = xmeta[:,0]
+xZ = xmeta[:,1]
+wl1r = [float(wl) for wl in xmeta[:,3]]
+wl2r = [float(wl) for wl in xmeta[:,4]]
 
-# define analysis WL range
-chosen_wave = Wave
-wl_a = 1250
-wl_b = 2250
-aint = chosen_wave > wl_a
-bint = chosen_wave < wl_b
-nint = np.logical_and(aint,bint)
+xspath = xpath + 'fits/'
+xlist = [glob.glob(xspath + '{}_*.txt'.format(name))[0] for name in xnames]
+print(xlist)
 
-
-# mask for analysis range
-X = [row[nint] for row in Fits]
-
-
-# ball tree arrangement of data
-nbrs = NearestNeighbors(n_neighbors=6, algorithm='ball_tree', metric='euclidean', p=2).fit(X)
-
+# power law fits of highz quasars
+pl = np.loadtxt(xpath + 'power_law_fits.txt', dtype='str')
+alphas = np.array([float(a) for a in pl[:,1])
+betas = np.array([float(b) for b in pl[:,3])
 
 # find best neighbors for every quasar in list
-qso_list = flist
 result=[]
-for i,qso in enumerate(qso_list):
+for i,qso in enumerate(xlist):
 
-    # determine file name of spectrum
-    chosen_file = Path(qso).stem
-    chosen_info = chosen_file.split('_')
+    chosen_wave = Wave
+    wl_a = 1250
+    wl_b = wl1r[i]
+    wl_c = wl2r[i]
+    wl_d = 2250
+    abint = np.logical_and(chosen_wave > wl_a,chosen_wave < wl_b)
+    cdint = np.logical_and(chosen_wave > wl_c,chosen_wave < 2250)
+    nint = np.logical_or(abint,cdint)
+    
+    X = [row[nint] for row in Fits]
 
-    chosen = chosen_info[0]
+    nbrs = NearestNeighbors(n_neighbors=5, algorithm='ball_tree', metric='euclidean', p=2).fit(X)
+    
+    qname = Path(f).stem.split('_')[0]
 
-    # load spectrum and fit
-    chosen_idx = Idxs.index(chosen)
-    chosen_fit = Fits[chosen_idx]
+    fit = np.loadtxt(f)
 
+    wl = fit[:,0]
+    flux = fit[:,1]
+
+    # ## POWER LAW
+    # alpha = alphas[pl[:,0].index(qso)]
+    # beta = betas[pl[:,0].index(qso)]
+    
+    # # SUBTRACTION
+    # flux = flux + power_law(wl,alpha,beta)
+
+    # # Division
+    # flux = flux/power_law(wl,alpha,beta)
+    
     # calculate NNs and their distance
-    distances, indices = nbrs.kneighbors([chosen_fit[nint]])
+    distances, indices = nbrs.kneighbors([flux[nint]])
 
     nbrs_idx = indices[0]
     nbrs_d = distances[0]
     
     meta_idx = [Idxs[j] for j in nbrs_idx]    
 
-    result.append([Idxs[i],*meta_idx,*nbrs_d])
+    result.append([qname,*meta_idx,*nbrs_d])
 
     print(i)
 
 
 # save results
-with open(dpath + 'nearest_neighbors_snr5.txt','w') as nnsave:
+with open(xpath + 'highZ_NN_full_ext.txt','w') as nnsave:
     for x in result:
-        nnsave.write('{} \t \t {} \t{} \t{} \t{} \t{} \t{} \t\t {} \t{} \t{} \t{} \t{} \t{} \n'.format(*x))
+        nnsave.write('{} \t {} \t{} \t{} \t{} \t{} \t {} \t{} \t{} \t{} \t{} \n'.format(*x))
 nnsave.close()
 
 
