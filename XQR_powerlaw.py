@@ -21,8 +21,8 @@ r7a, r7b = 1970,2400
 r8a, r8b = 2480,2675
 r9a, r9b = 2925,3400
 
-As = [r2a,r3a,r4a,r5a,r6a,r7a,r8a]
-Bs = [r2b,r3b,r4b,r5b,r6b,r7b,r8b]
+As = [r2a,r3a,r4a,r5a,r6a,r7a,r8a,r9a]
+Bs = [r2b,r3b,r4b,r5b,r6b,r7b,r8b,r9b]
 
 dpath = '/media/bartosz/USB STICK/highz_data/'
 npath = dpath + 'normed/'
@@ -83,7 +83,7 @@ for i,f in enumerate(glob.glob(npath + '*.txt')):
     pmask = abs(flux)<median+5*stdev
     
     fig = plt.figure()
-    plt.title(spec_id)
+    plt.title(file_info[0])
     plt.plot(wl[pmask],flux[pmask],drawstyle='steps-mid',lw=0.5)
     plt.plot(wl[pmask],power_law(wl[pmask],*popt),alpha=0.7,lw=0.5)
     plt.plot(wl[pmask],flux[pmask]-power_law(wl[pmask],*popt),drawstyle='steps-mid',alpha=0.7,lw=0.5)
