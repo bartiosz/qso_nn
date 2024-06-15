@@ -17,8 +17,8 @@ import random
 import pickle
 
 # select redshift range snd SNR threshold
-z_min = 3
-z_max = 4
+z_min = 2
+z_max = 3
 SNR_min = 5
 
 

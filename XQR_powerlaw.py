@@ -21,56 +21,72 @@ r7a, r7b = 1970,2400
 r8a, r8b = 2480,2675
 r9a, r9b = 2925,3400
 
-As = [r2a,r3a,r4a,r5a,r6a,r7a,r8a,r9a]
-Bs = [r2b,r3b,r4b,r5b,r6b,r7b,r8b,r9b]
+As = [r2a,r3a,r4a,r5a,r6a,r7a,r8a]
+Bs = [r2b,r3b,r4b,r5b,r6b,r7b,r8b]
 
 dpath = '/media/bartosz/USB STICK/highz_data/'
-npath = dpath + 'normed/'
+npath = dpath + 'fits/'
+
+# mask water absorption
+wl1 = 13450
+wl2 = 14250
 
 
 spec_id = []
 alpha,beta,alpha_sig,beta_sig = [],[],[],[]
 
-pp = PdfPages('plots/rand_sample.pdf')
+meta = np.loadtxt(dpath + 'meta_data_v2.txt', dtype='str')
+meta_names = meta[:,0]
+meta_z = [float(z) for z in meta[:,1]]
 
-for i,f in enumerate(glob.glob(npath + '*.txt')):
-    
+
+pp = PdfPages('plots/XQR_powerlaw_spline.pdf')
+
+for i,f in enumerate(glob.glob(npath + '*.txt')):    
+
     norm = np.loadtxt(f)
-    wl,flux,sig = norm[:,0],norm[:,1],norm[:,2]
+#    wl,flux,sig = norm[:,0],norm[:,1],norm[:,2]
+    wl,flux = norm[:,0],norm[:,1]
     
     file_name = Path(f).stem
     file_info = file_name.split('_')
     
     spec_id.append(file_info[0])
+
+    meta_id = np.where(meta_names==file_info[0])[0][0]
+    qso_z = meta_z[meta_id]
     
     mask = np.zeros(len(wl),dtype=bool)
     for j,m in enumerate(As):
         mask = np.logical_or(mask, (wl > As[j]) & (wl < Bs[j]))
-    mask = np.logical_and(mask, sig>0)
+    water_mask = np.logical_or(wl<wl1/(1+qso_z),wl>wl2/(1+qso_z))
+    mask = np.logical_and(mask,water_mask)
+#    mask = np.logical_and(mask, sig>0)
 
-    # mask uncertainties >2sigma
-    sig_mean = np.mean(sig[mask])
-    sig_stdev = np.std(sig[mask])
-    mask = np.logical_and(mask,sig<sig_mean+3*sig_stdev)
+#    # mask uncertainties >2sigma
+#    sig_mean = np.mean(sig[mask])
+#    sig_stdev = np.std(sig[mask])
+#    mask = np.logical_and(mask,sig<sig_mean+3*sig_stdev)
 
     try:    
-        popt,pcov = curve_fit(power_law,wl[mask],flux[mask],sigma=sig[mask],absolute_sigma=True,maxfev=1000)
+#        popt,pcov = curve_fit(power_law,wl[mask],flux[mask],sigma=sig[mask],absolute_sigma=True,maxfev=1000)
+        popt,pcov = curve_fit(power_law,wl[mask],flux[mask],maxfev=2000)
         
     except RuntimeError:
         print(i, 'RuntimeError: 1st iteration')
         continue
         
-    diff = abs(flux - power_law(wl,*popt))
-    diff_mean = np.mean(diff[mask])
-    diff_stdev = np.std(diff[mask])
-    mask2 = np.logical_and(mask,diff<diff_mean+3*diff_stdev)
-
-    try:
-        popt,pcov = curve_fit(power_law,wl[mask2],flux[mask2],sigma=sig[mask2],absolute_sigma=True,maxfev=1000)
-
-    except RunetimeError:
-        print(i, 'RuntimeError: 2nd iteration')
-        continue
+#    diff = abs(flux - power_law(wl,*popt))
+#    diff_mean = np.mean(diff[mask])
+#    diff_stdev = np.std(diff[mask])
+#    mask2 = np.logical_and(mask,diff<diff_mean+3*diff_stdev)
+#
+#    try:
+#        popt,pcov = curve_fit(power_law,wl[mask2],flux[mask2],sigma=sig[mask2],absolute_sigma=True,maxfev=1000)
+#
+#    except RunetimeError:
+#        print(i, 'RuntimeError: 2nd iteration')
+#        continue
     
     alpha.append(popt[0])
     beta.append(popt[1])
@@ -78,27 +94,32 @@ for i,f in enumerate(glob.glob(npath + '*.txt')):
     beta_sig.append(np.sqrt(pcov[1][1]))
 
 
-    median = np.median(flux)
-    stdev = np.std(flux)
-    pmask = abs(flux)<median+5*stdev
+#    median = np.median(flux)
+#    stdev = np.std(flux)
+#    pmask = abs(flux)<median+5*stdev
     
     fig = plt.figure()
+    fig.set_figheight(4.8)
+    fig.set_figwidth(12)
     plt.title(file_info[0])
-    plt.plot(wl[pmask],flux[pmask],drawstyle='steps-mid',lw=0.5)
-    plt.plot(wl[pmask],power_law(wl[pmask],*popt),alpha=0.7,lw=0.5)
-    plt.plot(wl[pmask],flux[pmask]-power_law(wl[pmask],*popt),drawstyle='steps-mid',alpha=0.7,lw=0.5)
-    plt.plot(wl[pmask],sig[pmask]-1,drawstyle='steps-mid',alpha=0.5,lw=0.5)
+#    plt.plot(wl[pmask],flux[pmask],drawstyle='steps-mid',lw=0.5)
+#    plt.plot(wl[pmask],power_law(wl[pmask],*popt),alpha=0.7,lw=0.5)
+#    plt.plot(wl[pmask],flux[pmask]-power_law(wl[pmask],*popt),drawstyle='steps-mid',alpha=0.7,lw=0.5)
+#    plt.plot(wl[pmask],sig[pmask]-1,drawstyle='steps-mid',alpha=0.5,lw=0.5)
+    plt.plot(wl,flux,drawstyle='steps-mid',lw=0.5)
+    plt.plot(wl,power_law(wl,*popt),alpha=0.7,lw=0.5)
+    plt.plot(wl,flux-power_law(wl,*popt),drawstyle='steps-mid',alpha=0.7,lw=0.5)
     for j,a in enumerate(As):
         plt.axvspan(As[j],Bs[j],color='lightgrey')
     plt.xlabel('wavelength')
     pp.savefig(fig)
     plt.close()
     
-    print(i)
+    print(i, qso_z)
 
 pp.close()
 
-pl_save='power_law_fits'
+pl_save='power_law_fits_spline'
 with open(dpath + pl_save + '.txt','w') as plsave:
     for x in itertools.zip_longest(spec_id,alpha,alpha_sig,beta,beta_sig):
         plsave.write('{} \t {} \t {} \t {} \t {} \n'.format(*x))

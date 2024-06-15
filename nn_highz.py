@@ -1,7 +1,5 @@
 import numpy as np
 import glob
-import os
-import matplotlib.pyplot as plt
 
 from sklearn.neighbors import NearestNeighbors
 
@@ -72,7 +70,7 @@ for i,f in enumerate(xlist):
     wl_c = wl2r[i]
     wl_d = 2250
     abint = np.logical_and(chosen_wave > wl_a,chosen_wave < wl_b)
-    cdint = np.logical_and(chosen_wave > wl_c,chosen_wave < 2250)
+    cdint = np.logical_and(chosen_wave > wl_c,chosen_wave < wl_d)
     nint = np.logical_or(abint,cdint)
     
     X = [row[nint] for row in Fits]

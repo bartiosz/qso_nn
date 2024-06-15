@@ -16,7 +16,7 @@ import itertools
 
 # redshift range
 #spec_folder = 'spectra__07/'
-spec_folder = 'spectra_07_2/'
+#spec_folder = 'spectra_07_2/'
 #spec_folder = 'spectra_2_3/'
 #spec_folder = 'spectra_3_4/'
 
@@ -46,6 +46,11 @@ for i,f in enumerate(speclist):
     # Load redshift
     qso_idx = int(file_info[0])
     z_in = get_z(all_meta,qso_idx)
+
+#    if z_in < 1.8:   # spline has issues fitting quasars with z < 1.8
+#        continue
+#    else:
+#        print(z_in)
 
 
     # Load spectrum data
