@@ -14,7 +14,7 @@ spec_folder = ['spectra_07_2/', 'spectra_2_3/', 'spectra_3_4/']
 meta_data_ext = ['meta_data_ext_07_2','meta_data_ext_2_3','meta_data_ext_3_4']
 
 # power law fit parameters
-pl = np.loadtxt(dpath + 'power_law_fits_spline.txt', dtype='str')
+pl = np.loadtxt(dpath + 'power_law_fits_spline_rsq_cl_bound.txt', dtype='str')
 pl_idxs = [int(i) for i in pl[:,0]]
 alphas = [float(a) for a in pl[:,2]]
 betas = [float(b) for b in pl[:,4]]
@@ -57,12 +57,12 @@ for h,sf in enumerate(spec_folder):
         fit = fqso[:,1]    
 
     
-        ## POWER LAW
-        alpha = alphas[pl_idxs.index(idx)]
-        beta = betas[pl_idxs.index(idx)]
-
-        # SUBTRACTION
-        fit = fit - power_law(Wave,alpha,beta)
+#        ## POWER LAW
+#        alpha = alphas[pl_idxs.index(idx)]
+#        beta = betas[pl_idxs.index(idx)]
+#
+#        # SUBTRACTION
+#        fit = fit - power_law(Wave,alpha,beta)
 #
 #        # DIVISION 
 #        fit = fit / power_law(Wave,alpha,beta)
@@ -89,7 +89,7 @@ xlist = [glob.glob(xspath + '{}_*.txt'.format(name))[0] for name in xnames]
 print(xlist)
 
 # load power law fit for high z quasars
-pl = np.loadtxt('/media/bartosz/USB STICK/highz_data/power_law_fits_spline.txt',dtype='str')
+pl = np.loadtxt('/media/bartosz/USB STICK/highz_data/power_law_fits_spline_rsq_cl_bound.txt',dtype='str')
 pl_name = pl[:,0]
 alphas = [float(a) for a in pl[:,1]]
 betas = [float(b) for b in pl[:,3]]
@@ -122,15 +122,15 @@ for i,f in enumerate(xlist):
     wl = fit[:,0]
     flux = fit[:,1]
 
-
-    # power law 
-    pl_idx = np.where(pl_name == qname)[0][0]
-    alpha = alphas[pl_idx]
-    beta = betas[pl_idx]
-
-    # subtraction
-    flux = flux - power_law(Wave,alpha,beta)
-
+#
+#    # power law 
+#    pl_idx = np.where(pl_name == qname)[0][0]
+#    alpha = alphas[pl_idx]
+#    beta = betas[pl_idx]
+#
+#    # subtraction
+#    flux = flux - power_law(Wave,alpha,beta)
+#
 #    # division
 #    flux = flux / power_law(Wave,alpha,beta)
     
@@ -147,7 +147,7 @@ for i,f in enumerate(xlist):
     print(f)
 
 
-with open(xpath + 'highZ_NN_ext_splinePL.txt','w') as nnsave:
+with open(xpath + 'highZ_NN_uncorr.txt','w') as nnsave:
     for x in result:
         nnsave.write('{} \t {} \t{} \t{} \t{} \t{} \t {} \t{} \t{} \t{} \t{} \n'.format(*x))
 nnsave.close()
