@@ -12,6 +12,8 @@ import itertools
 dpath= '/media/bartosz/USB STICK/BOSS_DR14_ext/'      # path to data
 spec_folder = ['spectra_07_2/', 'spectra_2_3/', 'spectra_3_4/']
 meta_data_ext = ['meta_data_ext_07_2','meta_data_ext_2_3','meta_data_ext_3_4']
+meta_ext_lbol = np.loadtxt(dpath+'meta_data_lbol_10%.txt',dtype='str')
+idx_lbol = [int(i) for i in meta_ext_lbol[:,0]]
 
 # power law fit parameters
 pl = np.loadtxt(dpath + 'power_law_fits_spline_rsq_cl_bound.txt', dtype='str')
@@ -52,17 +54,19 @@ for h,sf in enumerate(spec_folder):
 
         idx = int(sfile_info[0])
 
+        if idx not in idx_lbol:       # impose Lbol threshold
+            continue
 
         fqso = np.loadtxt(fpath + ffile)
         fit = fqso[:,1]    
 
     
-#        ## POWER LAW
-#        alpha = alphas[pl_idxs.index(idx)]
-#        beta = betas[pl_idxs.index(idx)]
-#
-#        # SUBTRACTION
-#        fit = fit - power_law(Wave,alpha,beta)
+        ## POWER LAW
+        alpha = alphas[pl_idxs.index(idx)]
+        beta = betas[pl_idxs.index(idx)]
+
+        # SUBTRACTION
+        fit = fit - power_law(Wave,alpha,beta)
 #
 #        # DIVISION 
 #        fit = fit / power_law(Wave,alpha,beta)
@@ -88,6 +92,9 @@ xspath = xpath + 'fits/'
 xlist = [glob.glob(xspath + '{}_*.txt'.format(name))[0] for name in xnames]
 print(xlist)
 
+# Exclude:
+exc = ['J1535+1943','PSOJ215.1514-16.0417','ULASJ0148+0600','ULASJ1207+0630','VIKJ2318-3029','PSOJ183-12']
+
 # load power law fit for high z quasars
 pl = np.loadtxt('/media/bartosz/USB STICK/highz_data/power_law_fits_spline_rsq_cl_bound.txt',dtype='str')
 pl_name = pl[:,0]
@@ -97,6 +104,10 @@ betas = [float(b) for b in pl[:,3]]
 
 result=[]
 for i,f in enumerate(xlist):
+
+    qname = Path(f).stem.split('_')[0]
+    if qname in exc:
+        continue
 
     # define analysis WL range
     chosen_wave = Wave
@@ -114,22 +125,20 @@ for i,f in enumerate(xlist):
     # ball tree arrangement of data
     nbrs = NearestNeighbors(n_neighbors=5, algorithm='ball_tree', metric='euclidean', p=2).fit(X)
 
-    qname = Path(f).stem.split('_')[0]
-
     # load spectrum and fit
     fit = np.loadtxt(f)
 
     wl = fit[:,0]
     flux = fit[:,1]
 
-#
-#    # power law 
-#    pl_idx = np.where(pl_name == qname)[0][0]
-#    alpha = alphas[pl_idx]
-#    beta = betas[pl_idx]
-#
-#    # subtraction
-#    flux = flux - power_law(Wave,alpha,beta)
+
+    # power law 
+    pl_idx = np.where(pl_name == qname)[0][0]
+    alpha = alphas[pl_idx]
+    beta = betas[pl_idx]
+
+    # subtraction
+    flux = flux - power_law(Wave,alpha,beta)
 #
 #    # division
 #    flux = flux / power_law(Wave,alpha,beta)
@@ -147,7 +156,7 @@ for i,f in enumerate(xlist):
     print(f)
 
 
-with open(xpath + 'highZ_NN_uncorr.txt','w') as nnsave:
+with open(xpath + 'highZ_NN_uncorr_lbol10%_corr.txt','w') as nnsave:
     for x in result:
         nnsave.write('{} \t {} \t{} \t{} \t{} \t{} \t {} \t{} \t{} \t{} \t{} \n'.format(*x))
 nnsave.close()
