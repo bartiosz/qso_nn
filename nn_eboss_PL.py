@@ -56,12 +56,12 @@ for h,sf in enumerate(spec_folder):
 
         idx = int(sfile_info[0])
 
-        ## POWER LAW
-        alpha = alphas[pl_idxs.index(idx)]
-        beta = betas[pl_idxs.index(idx)]
-
-        # SUBTRACTION
-        fit = fit - power_law(Wave,alpha,beta)
+#        ## POWER LAW
+#        alpha = alphas[pl_idxs.index(idx)]
+#        beta = betas[pl_idxs.index(idx)]
+#
+#        # SUBTRACTION
+#        fit = fit - power_law(Wave,alpha,beta)
 
         # prepare fits in array for NN search
         Fits.append(fit)
@@ -116,13 +116,13 @@ for h,sf in enumerate(spec_folder):
         
         meta_idx = [Idxs[j] for j in nbrs_idx]    
 
-        result.append([Idxs[i],*meta_idx,*nbrs_d])
+        result.append([chosen,*meta_idx,*nbrs_d])
 
         print(i)
 
 
 # save results
-with open(dpath + 'nearest_neighbors_PLcorr.txt','w') as nnsave:
+with open(dpath + 'nearest_neighbors_PLuncorr.txt','w') as nnsave:
     for x in result:
         nnsave.write('{} \t \t {} \t{} \t{} \t{} \t{} \t{} \t\t {} \t{} \t{} \t{} \t{} \t{} \n'.format(*x))
 nnsave.close()
