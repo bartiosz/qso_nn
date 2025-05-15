@@ -1,3 +1,28 @@
+Folders:
+
+analysis - scripts to analyze neighbors and properties
+
+filter - scripts to filter through quasar spectra
+
+fits - spline and power law fits of spectra
+
+functions - useful python functions
+
+nn - nearest neighbor search programs
+
+notebooks - contains useful code
+
+plots - notebooks and scripts for spectra/analysis plots
+
+radioloud - programs for Liangs project
+
+stitching - scripts for GHOSTLy proposal
+
+XQR - scripts/programs related to the XQR sample
+
+
+Some important scripts:
+
 loadspec.py - filtering meta, loading and saving spectra
 
 spline_fit.py - spline fit of spectra, fit and normed obs saved 
